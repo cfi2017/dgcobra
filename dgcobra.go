@@ -10,7 +10,7 @@ import (
 
 type ErrorInvalidArgs struct {
 	Message string
-	Err error
+	Err     error
 }
 
 func (err ErrorInvalidArgs) Error() string {
@@ -22,16 +22,15 @@ func (err ErrorInvalidArgs) Unwrap() error {
 }
 
 type Handler struct {
-	root       *cobra.Command
-	session    *discordgo.Session
-	Prefixes   []string
-	PrefixFunc func(session *discordgo.Session, event *discordgo.MessageCreate) []string
-	ErrFunc    func(err error)
+	RootFactory func() *cobra.Command
+	session     *discordgo.Session
+	Prefixes    []string
+	PrefixFunc  func(session *discordgo.Session, event *discordgo.MessageCreate) []string
+	ErrFunc     func(err error)
 }
 
-func NewHandler(session *discordgo.Session, root *cobra.Command) *Handler {
+func NewHandler(session *discordgo.Session) *Handler {
 	return &Handler{
-		root:    root,
 		session: session,
 	}
 }
@@ -50,13 +49,15 @@ func (h *Handler) Start() {
 			if strings.HasPrefix(event.Content, prefix) {
 				args, err := parseArgs(strings.TrimPrefix(event.Content, prefix))
 				if err != nil && h.ErrFunc != nil {
-					h.ErrFunc(ErrorInvalidArgs{Err:err, Message:"couldn't parse args"})
+					h.ErrFunc(ErrorInvalidArgs{Err: err, Message: "couldn't parse args"})
 					return
 				}
-				h.root.SetArgs(args)
-				err = h.root.Execute()
+				// get commands
+				root := h.RootFactory()
+				root.SetArgs(args)
+				err = root.Execute()
 				if err != nil && h.ErrFunc != nil {
-					h.ErrFunc(ErrorInvalidArgs{Err:err, Message:"couldn't execute command"})
+					h.ErrFunc(ErrorInvalidArgs{Err: err, Message: "couldn't execute command"})
 					return
 				}
 				return
