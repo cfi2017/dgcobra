@@ -23,7 +23,7 @@ func (w *MessageWriter) Write(b []byte) (n int, err error) {
 	if m == "" {
 		return 0, nil
 	}
-	msg, err := w.Session.ChannelMessageSend(w.Channel, string(b))
+	msg, err := w.Session.ChannelMessageSend(w.Channel, m)
 	if err != nil {
 		return 0, err
 	}
