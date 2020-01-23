@@ -47,7 +47,11 @@ func (h *Handler) Start() {
 		}
 		for _, prefix := range prefixes {
 			if strings.HasPrefix(event.Content, prefix) {
-				args, err := parseArgs(strings.TrimPrefix(event.Content, prefix))
+				a := strings.TrimSpace(strings.TrimPrefix(event.Content, prefix))
+				if a == "" {
+					return
+				}
+				args, err := parseArgs(a)
 				if err != nil && h.ErrFunc != nil {
 					h.ErrFunc(ErrorInvalidArgs{Err: err, Message: "couldn't parse args"})
 					return
