@@ -52,9 +52,13 @@ func (h *Handler) Start() {
 					h.ErrFunc(ErrorInvalidArgs{Err: err, Message: "couldn't parse args"})
 					return
 				}
+
+				w := NewMessageWriter(h.session, event.ChannelID)
 				// get commands
 				root := h.RootFactory(h.session, event)
 				root.SetArgs(args)
+				root.SetOut(w)
+				root.SetErr(w)
 				err = root.Execute()
 				if err != nil && h.ErrFunc != nil {
 					h.ErrFunc(ErrorInvalidArgs{Err: err, Message: "couldn't execute command"})
