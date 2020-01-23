@@ -58,7 +58,6 @@ func (h *Handler) Start() {
 				root := h.RootFactory(h.session, event)
 				root.SetArgs(args)
 				root.SetOut(w)
-				root.SetErr(w)
 				err = root.Execute()
 				if err != nil && h.ErrFunc != nil {
 					h.ErrFunc(ErrorInvalidArgs{Err: err, Message: "couldn't execute command"})
