@@ -74,15 +74,25 @@ func (h *Handler) Start() {
 					return
 				}
 
-				w := NewMessageWriter(h.session, event.ChannelID)
+				w := NewBufferedMessageWriter(h.session, event.ChannelID)
 				// get commands
 				root := h.RootFactory(h.session, event)
 				root.SetArgs(args)
 				root.SetOut(w)
 				root.Use = prefix
 				err = root.Execute()
+				// flush writer before calling errfunc
+				_, flushErr := w.Flush()
+				if flushErr != nil && h.ErrFunc != nil {
+					go h.ErrFunc(ErrorInvalidArgs{
+						Session: h.session,
+						Event:   event,
+						Message: "couldn't flush output",
+						Err:     flushErr,
+					})
+				}
 				if err != nil && h.ErrFunc != nil {
-					h.ErrFunc(ErrorInvalidArgs{
+					go h.ErrFunc(ErrorInvalidArgs{
 						Event:   event,
 						Session: h.session,
 						Err:     err,
