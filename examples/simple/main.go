@@ -29,22 +29,27 @@ func main() {
 		panic(err)
 	}
 
+	// create and setup new handler
 	handler = dgcobra.NewHandler(session)
-
+	// add simple global prefix
 	handler.AddPrefix("!")
+	// set command factory
 	handler.RootFactory = cmd.RootCmdFactory
+	// register new handler with discordgo
 	handler.Start()
 
+	// add ready handler to add bot mention when ID is available
 	session.AddHandlerOnce(onReady)
 
+	// open session
 	err = session.Open()
 	if err != nil {
 		panic(err)
 	}
 
+	// cleanup
 	log.Println("Bot is running. Press CTRL-C to exit.")
 	waitForSig() // wait for termination signal
-
 	err = session.Close()
 	if err != nil {
 		panic(err)
@@ -52,6 +57,7 @@ func main() {
 }
 
 func onReady(_ *discordgo.Session, ready *discordgo.Ready) {
+	// register bot mention as new global prefix
 	handler.AddPrefix(fmt.Sprintf("<@!%s> ", ready.User.ID))
 }
 

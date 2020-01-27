@@ -13,11 +13,14 @@ func echoCmdFactory(_ *discordgo.Session, _ *discordgo.MessageCreate) *cobra.Com
 		Aliases: []string{"e"},
 		Short:   "Echo the given message",
 		Long:    "Echoes the given message. Requires at least one argument.",
-		Args:    cobra.MinimumNArgs(1),
+		// require at least one argument, else print error and usage
+		Args: cobra.MinimumNArgs(1),
 	}
+	// define a few flags to be parsed
 	caps := cmd.Flags().BoolP("caps", "c", false, "full caps message")
 	blacklist := cmd.Flags().StringSliceP("blacklist", "b", []string{}, "blacklist words")
 	cmd.Run = func(cmd *cobra.Command, args []string) {
+		// filter message for blacklisted items
 		args = filterArray(args, *blacklist)
 		msg := strings.Join(args, " ")
 		if *caps {

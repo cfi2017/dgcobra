@@ -11,6 +11,7 @@ func pingCmdFactory(s *discordgo.Session, _ *discordgo.MessageCreate) *cobra.Com
 		Aliases: []string{"p"},
 		Short:   "Pong.",
 		Run: func(cmd *cobra.Command, args []string) {
+			// cmd.Printf prints to a dgcobra.MessageWriter (and the underlying channel, usually the channel of the event)
 			cmd.Printf("Pong. (%s)\n", s.LastHeartbeatAck.Sub(s.LastHeartbeatSent).String())
 		},
 	}
