@@ -2,6 +2,7 @@ package dgcobra
 
 import (
 	"encoding/csv"
+	"io"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -40,13 +41,17 @@ type Handler struct {
 	// Function to load prefixes for a specific message. Use this to allow guild-specific prefixes.
 	PrefixFunc func(session *discordgo.Session, event *discordgo.MessageCreate) []string
 	// Function that is called when the message event errors for some reason.
-	ErrFunc func(err error)
+	ErrFunc          func(err error)
+	OutWriterFactory func(s *discordgo.Session, channel string) io.Writer
 }
 
 // NewHandler creates a new handler with a given session.
 func NewHandler(session *discordgo.Session) *Handler {
 	return &Handler{
 		session: session,
+		OutWriterFactory: func(s *discordgo.Session, channel string) io.Writer {
+			return NewBufferedMessageWriter(s, channel)
+		},
 	}
 }
 
@@ -74,7 +79,7 @@ func (h *Handler) Start() {
 					return
 				}
 
-				w := NewBufferedMessageWriter(h.session, event.ChannelID)
+				w := h.OutWriterFactory(h.session, event.ChannelID)
 				// get commands
 				root := h.RootFactory(h.session, event)
 				root.SetArgs(args)
@@ -82,14 +87,16 @@ func (h *Handler) Start() {
 				root.Use = prefix
 				err = root.Execute()
 				// flush writer before calling errfunc
-				_, flushErr := w.Flush()
-				if flushErr != nil && h.ErrFunc != nil {
-					go h.ErrFunc(ErrorInvalidArgs{
-						Session: h.session,
-						Event:   event,
-						Message: "couldn't flush output",
-						Err:     flushErr,
-					})
+				if b, ok := w.(*BufferedMessageWriter); ok {
+					_, flushErr := b.Flush()
+					if flushErr != nil && h.ErrFunc != nil {
+						go h.ErrFunc(ErrorInvalidArgs{
+							Session: h.session,
+							Event:   event,
+							Message: "couldn't flush output",
+							Err:     flushErr,
+						})
+					}
 				}
 				if err != nil && h.ErrFunc != nil {
 					go h.ErrFunc(ErrorInvalidArgs{
