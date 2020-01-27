@@ -19,6 +19,8 @@ func echoCmdFactory(_ *discordgo.Session, _ *discordgo.MessageCreate) *cobra.Com
 	// define a few flags to be parsed
 	caps := cmd.Flags().BoolP("caps", "c", false, "full caps message")
 	blacklist := cmd.Flags().StringSliceP("blacklist", "b", []string{}, "blacklist words")
+
+	// define function to run on execution
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		// filter message for blacklisted items
 		args = filterArray(args, *blacklist)
