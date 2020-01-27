@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// root command factory for this package. Add subcommands with cmd.AddCommand.
 func RootCmdFactory(session *discordgo.Session, event *discordgo.MessageCreate) *cobra.Command {
 	cmd := &cobra.Command{
 		Short: "Simple example bot",
@@ -15,8 +16,8 @@ func RootCmdFactory(session *discordgo.Session, event *discordgo.MessageCreate) 
 `,
 	}
 	cmd.AddCommand(
-		PingCmdFactory(session, event),
-		EchoCmdFactory(session, event),
+		pingCmdFactory(session, event),
+		echoCmdFactory(session, event),
 	)
 	return cmd
 }

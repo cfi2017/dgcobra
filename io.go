@@ -6,11 +6,13 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// Writer implementation for a discord channel. This is used for example by cobra to output usage and help.
 type MessageWriter struct {
 	Session *discordgo.Session
 	Channel string
 }
 
+// Creates a message writer based on a given session and channel. Each write calls ChannelMessageSend on the session.
 func NewMessageWriter(session *discordgo.Session, channel string) *MessageWriter {
 	return &MessageWriter{
 		Session: session,

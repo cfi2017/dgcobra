@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func PingCmdFactory(s *discordgo.Session, _ *discordgo.MessageCreate) *cobra.Command {
+func pingCmdFactory(s *discordgo.Session, _ *discordgo.MessageCreate) *cobra.Command {
 	return &cobra.Command{
 		Use:     "ping",
 		Aliases: []string{"p"},

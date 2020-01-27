@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func EchoCmdFactory(_ *discordgo.Session, _ *discordgo.MessageCreate) *cobra.Command {
+func echoCmdFactory(_ *discordgo.Session, _ *discordgo.MessageCreate) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "echo",
 		Aliases: []string{"e"},
