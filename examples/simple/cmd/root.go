@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// root command factory for this package. Add subcommands with cmd.AddCommand.
+// RootCmdFactory is an example root command factory for this package. Add subcommands with cmd.AddCommand.
 func RootCmdFactory(session *discordgo.Session, event *discordgo.MessageCreate) *cobra.Command {
 	cmd := &cobra.Command{
 		Short: "Simple example bot",

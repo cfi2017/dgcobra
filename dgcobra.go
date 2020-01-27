@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Error that indicates invalid arguments were passed in a command. You can call Unwrap() to get the underlying error.
+// ErrorInvalidArgs indicates invalid arguments were passed in a command. You can call Unwrap() to get the underlying error.
 type ErrorInvalidArgs struct {
 	Session *discordgo.Session
 	Event   *discordgo.MessageCreate
@@ -20,13 +20,13 @@ func (err ErrorInvalidArgs) Error() string {
 	return err.Message
 }
 
-// Returns the underlying error behind ErrorInvalidArgs.
+// Unwrap returns the underlying error behind ErrorInvalidArgs.
 func (err ErrorInvalidArgs) Unwrap() error {
 	return err.Err
 }
 
 /*
-Represents a dgcobra Command Handler. This builds upon a RootCommandFactory.
+Handler represents a dgcobra Command Handler. This builds upon a RootCommandFactory.
 
 To use this, use NewHandler() and add a prefix and a root command factory. Then call Handler.Start().
 Examples in examples folder of this repository.
@@ -43,19 +43,19 @@ type Handler struct {
 	ErrFunc func(err error)
 }
 
-// Creates a new handler with a given session.
+// NewHandler creates a new handler with a given session.
 func NewHandler(session *discordgo.Session) *Handler {
 	return &Handler{
 		session: session,
 	}
 }
 
-// Registers a new global Prefix
+// AddPrefix registers a new global Prefix
 func (h *Handler) AddPrefix(prefix string) {
 	h.Prefixes = append(h.Prefixes, prefix)
 }
 
-// Registers a new handler with discordgo and starts receiving commands. This function is non-blocking.
+// Start registers a new handler with discordgo and starts receiving commands. This function is non-blocking.
 func (h *Handler) Start() {
 	h.session.AddHandler(func(_ *discordgo.Session, event *discordgo.MessageCreate) {
 		prefixes := h.Prefixes
