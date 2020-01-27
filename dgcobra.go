@@ -3,6 +3,7 @@ package dgcobra
 import (
 	"encoding/csv"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -79,11 +80,14 @@ func (h *Handler) Start() {
 					return
 				}
 
-				w := h.OutWriterFactory(h.session, event.ChannelID)
 				// get commands
 				root := h.RootFactory(h.session, event)
 				root.SetArgs(args)
-				root.SetOut(w)
+				var w io.Writer
+				if root.OutOrStdout() == os.Stdout { // only override out if it's not already overriden on the command
+					w = h.OutWriterFactory(h.session, event.ChannelID)
+					root.SetOut(w)
+				}
 				root.Use = prefix
 				err = root.Execute()
 				// flush writer before calling errfunc
