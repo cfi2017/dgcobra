@@ -22,7 +22,7 @@ func (err ErrorInvalidArgs) Unwrap() error {
 }
 
 type Handler struct {
-	RootFactory func(session *discordgo.Session, event *discordgo.MessageCreate, prefix string) *cobra.Command
+	RootFactory func(session *discordgo.Session, event *discordgo.MessageCreate) *cobra.Command
 	session     *discordgo.Session
 	Prefixes    []string
 	PrefixFunc  func(session *discordgo.Session, event *discordgo.MessageCreate) []string
@@ -59,9 +59,10 @@ func (h *Handler) Start() {
 
 				w := NewMessageWriter(h.session, event.ChannelID)
 				// get commands
-				root := h.RootFactory(h.session, event, prefix)
+				root := h.RootFactory(h.session, event)
 				root.SetArgs(args)
 				root.SetOut(w)
+				root.Use = prefix
 				err = root.Execute()
 				if err != nil && h.ErrFunc != nil {
 					h.ErrFunc(ErrorInvalidArgs{Err: err, Message: "couldn't execute command"})
