@@ -40,7 +40,8 @@ type Handler struct {
 	// List of global prefixes for the bot.
 	Prefixes []string
 	// Function to load prefixes for a specific message. Use this to allow guild-specific prefixes.
-	PrefixFunc func(session *discordgo.Session, event *discordgo.MessageCreate) []string
+	PrefixFunc                 func(session *discordgo.Session, event *discordgo.MessageCreate) []string
+	PrefixFuncOverridesGlobals bool
 	// Function that is called when the message event errors for some reason.
 	ErrFunc          func(err error)
 	OutWriterFactory func(s *discordgo.Session, channel string) io.Writer
@@ -53,6 +54,7 @@ func NewHandler(session *discordgo.Session) *Handler {
 		OutWriterFactory: func(s *discordgo.Session, channel string) io.Writer {
 			return NewBufferedMessageWriter(s, channel)
 		},
+		PrefixFuncOverridesGlobals: true,
 	}
 }
 
@@ -66,7 +68,11 @@ func (h *Handler) Start() {
 	h.session.AddHandler(func(_ *discordgo.Session, event *discordgo.MessageCreate) {
 		prefixes := h.Prefixes
 		if h.PrefixFunc != nil {
-			prefixes = append(prefixes, h.PrefixFunc(h.session, event)...)
+			if h.PrefixFuncOverridesGlobals {
+				prefixes = h.PrefixFunc(h.session, event)
+			} else {
+				prefixes = append(prefixes, h.PrefixFunc(h.session, event)...)
+			}
 		}
 		for _, prefix := range prefixes {
 			if strings.HasPrefix(event.Content, prefix) {
