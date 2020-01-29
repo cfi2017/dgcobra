@@ -40,10 +40,12 @@ type Handler struct {
 	// List of global prefixes for the bot.
 	Prefixes []string
 	// Function to load prefixes for a specific message. Use this to allow guild-specific prefixes.
-	PrefixFunc                 func(session *discordgo.Session, event *discordgo.MessageCreate) []string
+	PrefixFunc func(session *discordgo.Session, event *discordgo.MessageCreate) []string
+	// If the prefix function returns a list of prefixes, do these override the global list or append to it?
 	PrefixFuncOverridesGlobals bool
 	// Function that is called when the message event errors for some reason.
-	ErrFunc          func(err error)
+	ErrFunc func(err error)
+	// Implement your own writer. Uses a BufferedMessageWriter by default. This is used for example by usage functions.
 	OutWriterFactory func(s *discordgo.Session, channel string) io.Writer
 }
 
