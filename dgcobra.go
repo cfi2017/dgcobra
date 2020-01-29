@@ -68,7 +68,8 @@ func (h *Handler) Start() {
 	h.session.AddHandler(func(_ *discordgo.Session, event *discordgo.MessageCreate) {
 		prefixes := h.Prefixes
 		if h.PrefixFunc != nil {
-			if h.PrefixFuncOverridesGlobals {
+			additionals := h.PrefixFunc(h.session, event)
+			if len(additionals) > 0 && h.PrefixFuncOverridesGlobals {
 				prefixes = h.PrefixFunc(h.session, event)
 			} else {
 				prefixes = append(prefixes, h.PrefixFunc(h.session, event)...)
