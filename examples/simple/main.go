@@ -35,6 +35,13 @@ func main() {
 	handler.AddPrefix("!")
 	// set command factory
 	handler.RootFactory = cmd.RootCmdFactory
+	// register a prefix lookup function
+	handler.PrefixFunc = func(session *discordgo.Session, event *discordgo.MessageCreate) []string {
+		if event.GuildID != "" && cmd.Prefixes[event.GuildID] != "" {
+			return []string{cmd.Prefixes[event.GuildID], fmt.Sprintf("<@!%s> ", session.State.User.ID)}
+		}
+		return nil
+	}
 	// register new handler with discordgo
 	handler.Start()
 

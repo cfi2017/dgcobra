@@ -21,6 +21,7 @@ func RootCmdFactory(session *discordgo.Session, event *discordgo.MessageCreate) 
 	cmd.AddCommand(
 		pingCmdFactory(session, event),
 		echoCmdFactory(session, event),
+		prefixCmdFactory(session, event),
 	)
 	return cmd
 }
