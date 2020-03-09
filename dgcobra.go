@@ -114,6 +114,7 @@ func (h *Handler) Start() {
 	})
 }
 
+// parseArgs takes a space separated list of arguments and returns an array of arguments while respecting quotes
 func parseArgs(argString string) ([]string, error) {
 	r := csv.NewReader(strings.NewReader(argString))
 	r.Comma = ' ' // space
