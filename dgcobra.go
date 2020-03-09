@@ -103,7 +103,7 @@ func (h *Handler) Start() {
 				if b, ok := w.(*BufferedMessageWriter); ok {
 					_, flushErr := b.Flush()
 					if flushErr != nil && h.ErrFunc != nil {
-						go h.ErrFunc(ErrorInvalidArgs{
+						h.ErrFunc(ErrorInvalidArgs{
 							Session: h.session,
 							Event:   event,
 							Message: "couldn't flush output",
@@ -112,7 +112,7 @@ func (h *Handler) Start() {
 					}
 				}
 				if err != nil && h.ErrFunc != nil {
-					go h.ErrFunc(ErrorInvalidArgs{
+					h.ErrFunc(ErrorInvalidArgs{
 						Event:   event,
 						Session: h.session,
 						Err:     err,
