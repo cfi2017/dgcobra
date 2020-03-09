@@ -2,6 +2,7 @@ package dgcobra
 
 import (
 	"encoding/csv"
+	"errors"
 	"io"
 	"os"
 	"strings"
@@ -17,6 +18,10 @@ type ErrorInvalidArgs struct {
 	Message string
 	Err     error
 }
+
+var (
+	ErrInvalidCommand = errors.New("error: invalid command")
+)
 
 func (err ErrorInvalidArgs) Error() string {
 	return err.Message
@@ -97,7 +102,12 @@ func (h *Handler) Start() {
 					w = h.OutWriterFactory(h.session, event.ChannelID)
 					root.SetOut(w)
 				}
+
 				root.Use = prefix
+				if !root.IsAvailableCommand() && !root.IsAdditionalHelpTopicCommand() {
+					h.ErrFunc(ErrInvalidCommand)
+					return
+				}
 				err = root.Execute()
 				// flush writer before calling errfunc
 				if b, ok := w.(*BufferedMessageWriter); ok {
