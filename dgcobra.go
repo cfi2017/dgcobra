@@ -51,6 +51,10 @@ func (h *Handler) AddPrefix(prefix string) {
 // Start registers a new handler with discordgo and starts receiving commands. This function is non-blocking.
 func (h *Handler) Start() {
 	h.session.AddHandler(func(_ *discordgo.Session, event *discordgo.MessageCreate) {
+		// do not respond to bots
+		if event.Author.Bot {
+			return
+		}
 		prefixes := h.Prefixes
 		if h.PrefixFunc != nil {
 			additionals := h.PrefixFunc(h.session, event)
